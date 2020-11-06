@@ -3,17 +3,10 @@ package com.dalong.library.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author zwl
- * @describe 适配器
- * @date on 2020-01-27
- */
 public abstract class LoopViewAdapter<T> implements ILoopViewAdapter {
-
 
     private OnLoopViewChangeListener mOnLoopViewChangeListener;
     private List<T> mDatas;
-
 
     public void setDatas(List<T> mDatas) {
         this.mDatas = mDatas;
@@ -35,7 +28,7 @@ public abstract class LoopViewAdapter<T> implements ILoopViewAdapter {
     @Override
     public T getItem(int position) {
         if (mDatas == null) {
-            throw new RuntimeException(" data cannot be  null");
+            return null;
         }
         return mDatas.get(position);
     }
