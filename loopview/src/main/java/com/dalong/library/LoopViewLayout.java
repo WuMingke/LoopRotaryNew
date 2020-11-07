@@ -26,7 +26,7 @@ public class LoopViewLayout extends RelativeLayout implements ILoopView<LoopView
 
     private ValueAnimator restAnimator = null;//回位动画
 
-    private int loopRotationX = -27;//x轴旋转和轴旋转，y轴无效果
+    private int loopRotationX = -30;//x轴旋转和轴旋转，y轴无效果
 
     private GestureDetector mGestureDetector = null;//手势类
 
@@ -36,9 +36,7 @@ public class LoopViewLayout extends RelativeLayout implements ILoopView<LoopView
 
     private float r = 0;//半径
 
-    private float multiple = 1f;//倍数
-
-    private float distance = multiple * r;//camera和观察的旋转物体距离， 距离越长,最大物体和最小物体比例越不明显
+    private float distance = 0;//camera和观察的旋转物体距离， 距离越长,最大物体和最小物体比例越不明显
 
     private float angle = 0;    //旋转的角度
 
@@ -64,11 +62,11 @@ public class LoopViewLayout extends RelativeLayout implements ILoopView<LoopView
         mGestureDetector = new GestureDetector(context, getGeomeryController());
     }
 
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-        updateLoopViews();
-    }
+//    @Override
+//    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+//        super.onLayout(changed, l, t, r, b);
+//        updateLoopViews();
+//    }
 
     private GestureDetector.SimpleOnGestureListener getGeomeryController() {
         return new GestureDetector.SimpleOnGestureListener() {
@@ -83,26 +81,29 @@ public class LoopViewLayout extends RelativeLayout implements ILoopView<LoopView
         };
     }
 
-
     // 更新view位置
     public void updateLoopViews() {
         int count = getChildCount();
         int measuredWidth = getMeasuredWidth();
         r = (measuredWidth - Utils.dp2px(71)) / 2f;
+        float averageAngle = 360f / count;
+
         for (int i = 0; i < count; i++) {
-            View view = getChildAt(i);
-            float radians = angle + 180 - (float) (i * 360f / size);
+            View child = getChildAt(i);
+            float radians = angle + 180 - (float) (i * 360f / size);  // 角度
+            Log.i(TAG, "updateLoopViews: angle:" + angle + "----:" + radians+"--------:"+i);
             float x0 = (float) Math.sin(Math.toRadians(radians)) * r;
             float y0 = (float) Math.cos(Math.toRadians(radians)) * r;
             float scale0 = (distance - y0) / (distance + r);//计算子view之间的比例，可以看到distance越大的话 比例越小，也就是大小就相差越小
-            Log.i(TAG, "updateLoopViews: scale0----" + scale0);
-            view.setScaleX(Math.max(scale0, 0.4f));//对view进行缩放
-            view.setScaleY(Math.max(scale0, 0.4f));//对view进行缩放
-            view.setAlpha(Math.max(scale0, 0.4f));
+
+            child.setScaleX(Math.max(scale0, 0.4f));//对view进行缩放
+            child.setScaleY(Math.max(scale0, 0.4f));//对view进行缩放
+            child.setAlpha(Math.max(scale0, 0.4f));
+
 
             float rotationX_y = (float) Math.sin(Math.toRadians(loopRotationX * Math.cos(Math.toRadians(radians)))) * r;
-            view.setTranslationX(x0);
-            view.setTranslationY(rotationX_y);
+            child.setTranslationX(x0);
+            child.setTranslationY(rotationX_y);
 
         }
         postInvalidate();
@@ -237,15 +238,6 @@ public class LoopViewLayout extends RelativeLayout implements ILoopView<LoopView
         this.angle = angle;
     }
 
-    // 获取距离
-    public float getDistance() {
-        return distance;
-    }
-
-    // 设置距离
-    public void setDistance(float distance) {
-        this.distance = distance;
-    }
 
     // 获取选择是第几个item
     public int getSelectItem() {
@@ -286,13 +278,6 @@ public class LoopViewLayout extends RelativeLayout implements ILoopView<LoopView
     // 选中回调接口实现
     public void setOnItemSelectedListener(OnItemSelectedListener onItemSelectedListener) {
         this.onItemSelectedListener = onItemSelectedListener;
-    }
-
-    // 设置倍数
-    public LoopViewLayout setMultiple(float mMultiple) {
-        this.multiple = mMultiple;
-        distance = multiple * r;
-        return this;
     }
 
     public ValueAnimator getRestAnimator() {
